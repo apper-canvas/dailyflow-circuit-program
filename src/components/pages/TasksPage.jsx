@@ -17,7 +17,10 @@ const TasksPage = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const formRef = useRef(null)
-
+  
+  // Move hooks to top level to avoid conditional calling
+  const { user } = useSelector((state) => state.user);
+  const { logout } = useContext(AuthContext);
   const loadTasks = async () => {
     try {
       setError("")
@@ -88,8 +91,6 @@ const handleTaskCreated = async (taskData) => {
     )
   }
 
-const { user } = useSelector((state) => state.user);
-  const { logout } = useContext(AuthContext);
 
   return (
     <div className="min-h-screen bg-background">
