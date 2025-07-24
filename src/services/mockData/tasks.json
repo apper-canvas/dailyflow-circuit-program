@@ -1,0 +1,26 @@
+[
+  {
+    "Id": 1,
+    "title": "Review project proposal",
+    "description": "Go through the client's project requirements and prepare feedback",
+    "isCompleted": false,
+    "createdAt": "2024-01-15T09:00:00Z",
+    "updatedAt": "2024-01-15T09:00:00Z"
+  },
+  {
+    "Id": 2,
+    "title": "Buy groceries",
+    "description": "Milk, eggs, bread, and vegetables for the week",
+    "isCompleted": true,
+    "createdAt": "2024-01-15T08:30:00Z",
+    "updatedAt": "2024-01-15T10:15:00Z"
+  },
+  {
+    "Id": 3,
+    "title": "Schedule dentist appointment",
+    "description": "Call Dr. Smith's office to book a routine checkup",
+    "isCompleted": false,
+    "createdAt": "2024-01-15T07:45:00Z",
+    "updatedAt": "2024-01-15T07:45:00Z"
+  }
+]

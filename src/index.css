@@ -1,0 +1,89 @@
+@import 'react-toastify/dist/ReactToastify.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  
+  body {
+    margin: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer components {
+  .task-checkbox {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #8B7FBF;
+    border-radius: 4px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: white;
+  }
+  
+  .task-checkbox:checked {
+    background: #4ECDC4;
+    border-color: #4ECDC4;
+  }
+  
+  .task-checkbox:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+  }
+  
+  .task-completed {
+    opacity: 0.6;
+  }
+  
+  .task-completed .task-title {
+    text-decoration: line-through;
+    text-decoration-color: #8B7FBF;
+  }
+}
+
+/* Toast Overrides */
+.Toastify__toast-container {
+  top: 1rem;
+  right: 1rem;
+  width: 320px;
+}
+
+.Toastify__toast {
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  min-height: 48px;
+  padding: 12px 16px;
+}
+
+.Toastify__toast--success {
+  background: #4ECDC4;
+}
+
+.Toastify__toast--error {
+  background: #FF6B6B;
+}
+
+.Toastify__toast--info {
+  background: #4A90E2;
+}
+
+.Toastify__progress-bar {
+  height: 3px;
+}
