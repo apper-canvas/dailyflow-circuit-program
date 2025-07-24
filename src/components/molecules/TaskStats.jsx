@@ -7,6 +7,23 @@ const TaskStats = ({ tasks }) => {
   const completedTasks = tasks.filter(task => task.isCompleted).length
   const pendingTasks = totalTasks - completedTasks
   const completionRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0
+  
+  // Calculate overdue tasks
+  const overdueTasks = tasks.filter(task => {
+    if (task.isCompleted || !task.dueDate) return false
+    try {
+      const dueDate = typeof task.dueDate === 'string' ? new Date(task.dueDate) : task.dueDate
+      if (!dueDate || isNaN(dueDate.getTime())) return false
+      
+      const now = new Date()
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      const taskDate = new Date(dueDate.getFullYear(), dueDate.getMonth(), dueDate.getDate())
+      
+      return taskDate < today
+    } catch {
+      return false
+    }
+  }).length
 
   const stats = [
     {
@@ -24,11 +41,11 @@ const TaskStats = ({ tasks }) => {
       bgColor: "bg-success/10"
     },
     {
-      label: "Pending",
-      value: pendingTasks,
-      icon: "Clock",
-      color: "text-warning",
-      bgColor: "bg-warning/10"
+      label: "Overdue",
+      value: overdueTasks,
+      icon: "AlertCircle",
+      color: "text-error",
+      bgColor: "bg-error/10"
     },
     {
       label: "Progress",

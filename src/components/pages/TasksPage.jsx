@@ -140,7 +140,7 @@ const handleTaskCreated = async (taskData) => {
           {tasks.length === 0 ? (
             <Empty onAddTask={scrollToForm} />
           ) : (
-            <div>
+<div>
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-display font-semibold text-gray-800">
                   Your Tasks
@@ -150,11 +150,12 @@ const handleTaskCreated = async (taskData) => {
                 </div>
               </div>
               
-<TaskList
+              <TaskList
                 tasks={tasks}
                 onToggleComplete={handleToggleComplete}
                 onUpdate={handleTaskUpdate}
                 onDelete={handleDeleteTask}
+                separateOverdue={true}
               />
             </div>
           )}

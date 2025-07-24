@@ -130,10 +130,11 @@ const updates = {
       whileHover={{ scale: 1.01 }}
       className="group"
     >
-      <Card className={cn(
+<Card className={cn(
         "p-4 shadow-md hover:shadow-lg transition-all duration-200",
         "border-l-4 border-l-primary/20",
-        task.isCompleted && "task-completed border-l-success/40"
+        task.isCompleted && "task-completed border-l-success/40",
+        dueDateInfo?.isOverdue && !task.isCompleted && "border-l-error/60 bg-error/5"
       )}>
         <div className="flex items-start gap-4">
           <motion.div
@@ -262,6 +263,11 @@ const updates = {
                     )}>
                       {task.priority || "Medium"}
                     </span>
+                    {dueDateInfo?.isOverdue && !task.isCompleted && (
+                      <span className="px-2 py-1 rounded-full text-xs font-bold bg-error text-white border border-error">
+                        OVERDUE
+                      </span>
+                    )}
                   </div>
                 </div>
 
