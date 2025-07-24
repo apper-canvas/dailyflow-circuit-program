@@ -11,11 +11,13 @@ import { cn } from "@/utils/cn"
 import { format, isValid, parseISO } from "date-fns"
 
 const TaskCard = ({ task, onToggleComplete, onDelete, onUpdate }) => {
-  const [isDeleting, setIsDeleting] = useState(false)
+const [isDeleting, setIsDeleting] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editTitle, setEditTitle] = useState(task.title)
   const [editDescription, setEditDescription] = useState(task.description || "")
+  const [editCategory, setEditCategory] = useState(task.category || "Personal")
+  const [editPriority, setEditPriority] = useState(task.priority || "Medium")
   const [isSaving, setIsSaving] = useState(false)
   const handleToggleComplete = async () => {
     try {
@@ -38,9 +40,11 @@ const handleDelete = async () => {
     }
   }
 
-  const handleEdit = () => {
+const handleEdit = () => {
     setEditTitle(task.title)
     setEditDescription(task.description || "")
+    setEditCategory(task.category || "Personal")
+    setEditPriority(task.priority || "Medium")
     setIsEditing(true)
   }
 
@@ -52,9 +56,11 @@ const handleDelete = async () => {
 
     setIsSaving(true)
     try {
-      const updates = {
+const updates = {
         title: editTitle.trim(),
-        description: editDescription.trim()
+        description: editDescription.trim(),
+        category: editCategory,
+        priority: editPriority
       }
       await onUpdate(task.Id, updates)
       setIsEditing(false)
@@ -92,6 +98,25 @@ const handleDelete = async () => {
     } catch {
       return null
     }
+}
+
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case 'High': return 'bg-red-100 text-red-800 border-red-200'
+      case 'Medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+      case 'Low': return 'bg-green-100 text-green-800 border-green-200'
+      default: return 'bg-gray-100 text-gray-800 border-gray-200'
+    }
+  }
+
+  const getCategoryColor = (category) => {
+    switch (category) {
+      case 'Work': return 'bg-blue-100 text-blue-800 border-blue-200'
+      case 'Personal': return 'bg-purple-100 text-purple-800 border-purple-200'
+      case 'Shopping': return 'bg-emerald-100 text-emerald-800 border-emerald-200'
+      case 'Health': return 'bg-pink-100 text-pink-800 border-pink-200'
+      default: return 'bg-gray-100 text-gray-800 border-gray-200'
+    }
   }
 
   const dueDateInfo = formatDueDate(task.dueDate)
@@ -123,7 +148,7 @@ const handleDelete = async () => {
           </motion.div>
 
 <div className="flex-1 min-w-0">
-            {isEditing ? (
+{isEditing ? (
               <div className="space-y-3">
                 <div>
                   <Input
@@ -142,6 +167,33 @@ const handleDelete = async () => {
                     disabled={isSaving}
                     className="text-sm font-body min-h-[60px]"
                   />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <select
+                      value={editCategory}
+                      onChange={(e) => setEditCategory(e.target.value)}
+                      disabled={isSaving}
+                      className="w-full px-2 py-1 border border-gray-300 rounded text-xs font-body focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-50"
+                    >
+                      <option value="Work">Work</option>
+                      <option value="Personal">Personal</option>
+                      <option value="Shopping">Shopping</option>
+                      <option value="Health">Health</option>
+                    </select>
+                  </div>
+                  <div>
+                    <select
+                      value={editPriority}
+                      onChange={(e) => setEditPriority(e.target.value)}
+                      disabled={isSaving}
+                      className="w-full px-2 py-1 border border-gray-300 rounded text-xs font-body focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-50"
+                    >
+                      <option value="High">High</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Low">Low</option>
+                    </select>
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
@@ -195,6 +247,23 @@ const handleDelete = async () => {
                     Click to add description...
                   </p>
                 )}
+
+<div className="flex items-center justify-between mt-3">
+                  <div className="flex items-center gap-2">
+                    <span className={cn(
+                      "px-2 py-1 rounded-full text-xs font-medium border",
+                      getCategoryColor(task.category || "Personal")
+                    )}>
+                      {task.category || "Personal"}
+                    </span>
+                    <span className={cn(
+                      "px-2 py-1 rounded-full text-xs font-medium border",
+                      getPriorityColor(task.priority || "Medium")
+                    )}>
+                      {task.priority || "Medium"}
+                    </span>
+                  </div>
+                </div>
 
                 <div className="flex items-center gap-4 mt-3 text-xs text-gray-400 font-body">
                   {dueDateInfo && (

@@ -10,9 +10,11 @@ import Card from "@/components/atoms/Card"
 import ApperIcon from "@/components/ApperIcon"
 
 const TaskForm = ({ onTaskCreated }) => {
-  const [title, setTitle] = useState("")
+const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [dueDate, setDueDate] = useState(null)
+  const [category, setCategory] = useState("Personal")
+  const [priority, setPriority] = useState("Medium")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
 const handleSubmit = async (e) => {
@@ -26,10 +28,12 @@ const handleSubmit = async (e) => {
     setIsSubmitting(true)
 
     try {
-      const newTask = {
+const newTask = {
         title: title.trim(),
         description: description.trim(),
-        dueDate: dueDate ? dueDate.toISOString() : null
+        dueDate: dueDate ? dueDate.toISOString() : null,
+        category,
+        priority
       }
 
       await onTaskCreated(newTask)
@@ -38,6 +42,8 @@ const handleSubmit = async (e) => {
       setTitle("")
       setDescription("")
       setDueDate(null)
+      setCategory("Personal")
+      setPriority("Medium")
       
       toast.success("Task created successfully!")
     } catch (error) {
@@ -87,6 +93,50 @@ const handleSubmit = async (e) => {
               disabled={isSubmitting}
               className="font-body"
             />
+          </div>
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700 font-body">
+                Category
+              </label>
+              <div className="relative">
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  disabled={isSubmitting}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-body focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 appearance-none bg-white"
+                >
+                  <option value="Work">Work</option>
+                  <option value="Personal">Personal</option>
+                  <option value="Shopping">Shopping</option>
+                  <option value="Health">Health</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <ApperIcon name="ChevronDown" className="h-4 w-4 text-gray-400" />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700 font-body">
+                Priority
+              </label>
+              <div className="relative">
+                <select
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value)}
+                  disabled={isSubmitting}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-body focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 appearance-none bg-white"
+                >
+                  <option value="High">High</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Low">Low</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                  <ApperIcon name="ChevronDown" className="h-4 w-4 text-gray-400" />
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="space-y-2">

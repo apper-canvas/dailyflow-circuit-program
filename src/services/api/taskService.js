@@ -28,6 +28,8 @@ async create(taskData) {
       Id: Math.max(...this.tasks.map(t => t.Id), 0) + 1,
       ...taskData,
       dueDate: taskData.dueDate || null,
+      category: taskData.category || "Personal",
+      priority: taskData.priority || "Medium",
       isCompleted: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
