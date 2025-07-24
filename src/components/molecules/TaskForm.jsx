@@ -1,6 +1,8 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { toast } from "react-toastify"
+import DatePicker from "react-datepicker"
+import "react-datepicker/dist/react-datepicker.css"
 import Button from "@/components/atoms/Button"
 import Input from "@/components/atoms/Input"
 import Textarea from "@/components/atoms/Textarea"
@@ -10,9 +12,10 @@ import ApperIcon from "@/components/ApperIcon"
 const TaskForm = ({ onTaskCreated }) => {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
+  const [dueDate, setDueDate] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault()
     
     if (!title.trim()) {
@@ -25,7 +28,8 @@ const TaskForm = ({ onTaskCreated }) => {
     try {
       const newTask = {
         title: title.trim(),
-        description: description.trim()
+        description: description.trim(),
+        dueDate: dueDate ? dueDate.toISOString() : null
       }
 
       await onTaskCreated(newTask)
@@ -33,6 +37,7 @@ const TaskForm = ({ onTaskCreated }) => {
       // Reset form
       setTitle("")
       setDescription("")
+      setDueDate(null)
       
       toast.success("Task created successfully!")
     } catch (error) {
@@ -71,8 +76,7 @@ const TaskForm = ({ onTaskCreated }) => {
               className="font-body"
             />
           </div>
-
-          <div className="space-y-2">
+<div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700 font-body">
               Description (Optional)
             </label>
@@ -83,6 +87,28 @@ const TaskForm = ({ onTaskCreated }) => {
               disabled={isSubmitting}
               className="font-body"
             />
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700 font-body">
+              Due Date (Optional)
+            </label>
+            <div className="relative">
+              <DatePicker
+                selected={dueDate}
+                onChange={setDueDate}
+                placeholderText="Select a due date"
+                dateFormat="MMM d, yyyy"
+                minDate={new Date()}
+                disabled={isSubmitting}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-body focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500"
+                wrapperClassName="w-full"
+                popperClassName="react-datepicker-popper"
+              />
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                <ApperIcon name="Calendar" className="h-4 w-4 text-gray-400" />
+              </div>
+            </div>
           </div>
 
           <Button

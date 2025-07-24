@@ -2,15 +2,21 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { toast } from "react-toastify"
 import Button from "@/components/atoms/Button"
+import Input from "@/components/atoms/Input"
+import Textarea from "@/components/atoms/Textarea"
 import Checkbox from "@/components/atoms/Checkbox"
 import Card from "@/components/atoms/Card"
 import ApperIcon from "@/components/ApperIcon"
 import { cn } from "@/utils/cn"
+import { format, isValid, parseISO } from "date-fns"
 
-const TaskCard = ({ task, onToggleComplete, onDelete }) => {
+const TaskCard = ({ task, onToggleComplete, onDelete, onUpdate }) => {
   const [isDeleting, setIsDeleting] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-
+  const [isEditing, setIsEditing] = useState(false)
+  const [editTitle, setEditTitle] = useState(task.title)
+  const [editDescription, setEditDescription] = useState(task.description || "")
+  const [isSaving, setIsSaving] = useState(false)
   const handleToggleComplete = async () => {
     try {
       await onToggleComplete(task.Id)
@@ -19,8 +25,7 @@ const TaskCard = ({ task, onToggleComplete, onDelete }) => {
       toast.error("Failed to update task")
     }
   }
-
-  const handleDelete = async () => {
+const handleDelete = async () => {
     setIsDeleting(true)
     try {
       await onDelete(task.Id)
@@ -33,6 +38,63 @@ const TaskCard = ({ task, onToggleComplete, onDelete }) => {
     }
   }
 
+  const handleEdit = () => {
+    setEditTitle(task.title)
+    setEditDescription(task.description || "")
+    setIsEditing(true)
+  }
+
+  const handleSave = async () => {
+    if (!editTitle.trim()) {
+      toast.error("Task title cannot be empty")
+      return
+    }
+
+    setIsSaving(true)
+    try {
+      const updates = {
+        title: editTitle.trim(),
+        description: editDescription.trim()
+      }
+      await onUpdate(task.Id, updates)
+      setIsEditing(false)
+      toast.success("Task updated successfully")
+    } catch (error) {
+      toast.error("Failed to update task")
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleCancel = () => {
+    setEditTitle(task.title)
+    setEditDescription(task.description || "")
+    setIsEditing(false)
+  }
+
+  const formatDueDate = (dueDate) => {
+    if (!dueDate) return null
+    try {
+      const date = typeof dueDate === 'string' ? parseISO(dueDate) : dueDate
+      if (!isValid(date)) return null
+      
+      const now = new Date()
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      const taskDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+      
+      if (taskDate.getTime() === today.getTime()) {
+        return { text: "Today", isOverdue: false, isToday: true }
+      } else if (taskDate < today) {
+        return { text: format(date, "MMM d"), isOverdue: true, isToday: false }
+      } else {
+        return { text: format(date, "MMM d"), isOverdue: false, isToday: false }
+      }
+    } catch {
+      return null
+    }
+  }
+
+  const dueDateInfo = formatDueDate(task.dueDate)
   return (
     <motion.div
       layout
@@ -60,26 +122,101 @@ const TaskCard = ({ task, onToggleComplete, onDelete }) => {
             />
           </motion.div>
 
-          <div className="flex-1 min-w-0">
-            <h3 className={cn(
-              "font-display font-medium text-gray-900 task-title",
-              "text-base leading-tight mb-1"
-            )}>
-              {task.title}
-            </h3>
-            
-            {task.description && (
-              <p className="text-sm text-gray-600 font-body leading-relaxed">
-                {task.description}
-              </p>
+<div className="flex-1 min-w-0">
+            {isEditing ? (
+              <div className="space-y-3">
+                <div>
+                  <Input
+                    value={editTitle}
+                    onChange={(e) => setEditTitle(e.target.value)}
+                    placeholder="Task title"
+                    disabled={isSaving}
+                    className="font-display font-medium text-base"
+                  />
+                </div>
+                <div>
+                  <Textarea
+                    value={editDescription}
+                    onChange={(e) => setEditDescription(e.target.value)}
+                    placeholder="Add description..."
+                    disabled={isSaving}
+                    className="text-sm font-body min-h-[60px]"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    onClick={handleSave}
+                    disabled={isSaving || !editTitle.trim()}
+                    className="h-8 px-3 text-xs"
+                  >
+                    {isSaving ? (
+                      <ApperIcon name="Loader2" className="h-3 w-3 animate-spin mr-1" />
+                    ) : (
+                      <ApperIcon name="Check" className="h-3 w-3 mr-1" />
+                    )}
+                    Save
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCancel}
+                    disabled={isSaving}
+                    className="h-8 px-3 text-xs"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <h3 
+                  className={cn(
+                    "font-display font-medium text-gray-900 task-title cursor-pointer",
+                    "text-base leading-tight mb-1 hover:text-primary transition-colors"
+                  )}
+                  onClick={handleEdit}
+                >
+                  {task.title}
+                </h3>
+                
+                {task.description ? (
+                  <p 
+                    className="text-sm text-gray-600 font-body leading-relaxed cursor-pointer hover:text-gray-800 transition-colors"
+                    onClick={handleEdit}
+                  >
+                    {task.description}
+                  </p>
+                ) : (
+                  <p 
+                    className="text-sm text-gray-400 font-body leading-relaxed cursor-pointer hover:text-gray-600 transition-colors italic"
+                    onClick={handleEdit}
+                  >
+                    Click to add description...
+                  </p>
+                )}
+
+                <div className="flex items-center gap-4 mt-3 text-xs text-gray-400 font-body">
+                  {dueDateInfo && (
+                    <div className={cn(
+                      "flex items-center gap-1",
+                      dueDateInfo.isOverdue && "text-error",
+                      dueDateInfo.isToday && "text-warning"
+                    )}>
+                      <ApperIcon name="Calendar" className="h-3 w-3" />
+                      <span>{dueDateInfo.text}</span>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center gap-1">
+                    <ApperIcon name="Clock" className="h-3 w-3" />
+                    <span>
+                      Created {new Date(task.createdAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              </>
             )}
-            
-            <div className="flex items-center gap-2 mt-3 text-xs text-gray-400 font-body">
-              <ApperIcon name="Clock" className="h-3 w-3" />
-              <span>
-                Created {new Date(task.createdAt).toLocaleDateString()}
-              </span>
-            </div>
           </div>
 
           <div className="flex items-center gap-2">
@@ -92,47 +229,57 @@ const TaskCard = ({ task, onToggleComplete, onDelete }) => {
                 <ApperIcon name="Check" className="h-3 w-3 text-success" />
               </motion.div>
             )}
-            
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-            >
-              {showDeleteConfirm ? (
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={handleDelete}
-                    disabled={isDeleting}
-                    className="h-8 px-3 text-xs"
-                  >
-                    {isDeleting ? (
-                      <ApperIcon name="Loader2" className="h-3 w-3 animate-spin" />
-                    ) : (
-                      "Delete"
-                    )}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowDeleteConfirm(false)}
-                    className="h-8 px-3 text-xs"
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              ) : (
+{!isEditing && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-1"
+              >
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setShowDeleteConfirm(true)}
-                  className="h-8 w-8 p-0 text-gray-400 hover:text-error hover:bg-error/10"
+                  onClick={handleEdit}
+                  className="h-8 w-8 p-0 text-gray-400 hover:text-primary hover:bg-primary/10"
                 >
-                  <ApperIcon name="Trash2" className="h-4 w-4" />
+                  <ApperIcon name="Edit2" className="h-4 w-4" />
                 </Button>
-              )}
-            </motion.div>
+                
+                {showDeleteConfirm ? (
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={handleDelete}
+                      disabled={isDeleting}
+                      className="h-8 px-3 text-xs"
+                    >
+                      {isDeleting ? (
+                        <ApperIcon name="Loader2" className="h-3 w-3 animate-spin" />
+                      ) : (
+                        "Delete"
+                      )}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowDeleteConfirm(false)}
+                      className="h-8 px-3 text-xs"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="h-8 w-8 p-0 text-gray-400 hover:text-error hover:bg-error/10"
+                  >
+                    <ApperIcon name="Trash2" className="h-4 w-4" />
+                  </Button>
+                )}
+              </motion.div>
+            )}
           </div>
         </div>
       </Card>

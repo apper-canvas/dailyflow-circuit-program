@@ -22,11 +22,12 @@ class TaskService {
     return { ...task }
   }
 
-  async create(taskData) {
+async create(taskData) {
     await delay(400)
     const newTask = {
       Id: Math.max(...this.tasks.map(t => t.Id), 0) + 1,
       ...taskData,
+      dueDate: taskData.dueDate || null,
       isCompleted: false,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()

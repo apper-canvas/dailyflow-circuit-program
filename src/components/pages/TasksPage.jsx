@@ -32,7 +32,7 @@ const TasksPage = () => {
     loadTasks()
   }, [])
 
-  const handleTaskCreated = async (taskData) => {
+const handleTaskCreated = async (taskData) => {
     const newTask = await taskService.create(taskData)
     setTasks(prevTasks => [...prevTasks, newTask])
   }
@@ -46,13 +46,21 @@ const TasksPage = () => {
     )
   }
 
+  const handleTaskUpdate = async (taskId, updates) => {
+    const updatedTask = await taskService.update(taskId, updates)
+    setTasks(prevTasks =>
+      prevTasks.map(task =>
+        task.Id === taskId ? updatedTask : task
+      )
+    )
+  }
+
   const handleDeleteTask = async (taskId) => {
     await taskService.delete(taskId)
     setTasks(prevTasks =>
       prevTasks.filter(task => task.Id !== taskId)
     )
   }
-
   const scrollToForm = () => {
     formRef.current?.scrollIntoView({ behavior: "smooth" })
   }
@@ -142,9 +150,10 @@ const TasksPage = () => {
                 </div>
               </div>
               
-              <TaskList
+<TaskList
                 tasks={tasks}
                 onToggleComplete={handleToggleComplete}
+                onUpdate={handleTaskUpdate}
                 onDelete={handleDeleteTask}
               />
             </div>
