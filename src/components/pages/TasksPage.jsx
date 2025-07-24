@@ -10,8 +10,7 @@ import Error from "@/components/ui/Error"
 import Empty from "@/components/ui/Empty"
 import ApperIcon from "@/components/ApperIcon"
 import Button from "@/components/atoms/Button"
-import { AuthContext } from "../App"
-
+import { AuthContext } from "../../App"
 const TasksPage = () => {
   const [tasks, setTasks] = useState([])
   const [loading, setLoading] = useState(true)
