@@ -1,21 +1,49 @@
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { toast } from "react-toastify"
-import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
-import Button from "@/components/atoms/Button"
-import Input from "@/components/atoms/Input"
-import Textarea from "@/components/atoms/Textarea"
-import Card from "@/components/atoms/Card"
-import ApperIcon from "@/components/ApperIcon"
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { toast } from "react-toastify";
+import DatePicker from "react-datepicker";
+import ApperIcon from "@/components/ApperIcon";
+import Card from "@/components/atoms/Card";
+import Input from "@/components/atoms/Input";
+import Button from "@/components/atoms/Button";
+import Textarea from "@/components/atoms/Textarea";
 
-const TaskForm = ({ onTaskCreated }) => {
+const TaskForm = ({ onTaskCreated, task = null, mode = 'create' }) => {
 const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [dueDate, setDueDate] = useState(null)
   const [category, setCategory] = useState("Personal")
   const [priority, setPriority] = useState("Medium")
+  const [tags, setTags] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const editMode = mode === 'edit' && task
+
+  // Pre-populate form fields when editing
+  useEffect(() => {
+    if (editMode) {
+      setTitle(task.title || "")
+      setDescription(task.description || "")
+      setCategory(task.category || "Personal")
+      setPriority(task.priority || "Medium")
+      setTags(task.tags || "")
+      
+      // Handle due date - convert string to Date object for DatePicker
+      if (task.dueDate) {
+        try {
+          const date = new Date(task.dueDate)
+          if (!isNaN(date.getTime())) {
+            setDueDate(date)
+          }
+        } catch (error) {
+          console.error("Invalid due date format:", task.dueDate)
+          setDueDate(null)
+        }
+      } else {
+        setDueDate(null)
+      }
+    }
+  }, [editMode, task])
 
 const handleSubmit = async (e) => {
     e.preventDefault()
@@ -28,26 +56,38 @@ const handleSubmit = async (e) => {
     setIsSubmitting(true)
 
     try {
-const newTask = {
+      const taskData = {
         title: title.trim(),
         description: description.trim(),
         dueDate: dueDate ? dueDate.toISOString() : null,
         category,
-        priority
+        priority,
+        tags: tags.trim()
       }
 
-      await onTaskCreated(newTask)
-      
-      // Reset form
-      setTitle("")
-      setDescription("")
-      setDueDate(null)
-      setCategory("Personal")
-      setPriority("Medium")
-      
-      toast.success("Task created successfully!")
+      if (editMode) {
+        // Update existing task
+        await onTaskCreated(taskData, task.Id, 'update')
+        toast.success("Task updated successfully!")
+      } else {
+        // Create new task
+        await onTaskCreated(taskData)
+        
+        // Reset form only when creating
+        setTitle("")
+        setDescription("")
+        setDueDate(null)
+        setCategory("Personal")
+        setPriority("Medium")
+        setTags("")
+        
+        toast.success("Task created successfully!")
+      }
     } catch (error) {
-      toast.error("Failed to create task. Please try again.")
+      const errorMessage = editMode 
+        ? "Failed to update task. Please try again."
+        : "Failed to create task. Please try again."
+      toast.error(errorMessage)
     } finally {
       setIsSubmitting(false)
     }
@@ -65,8 +105,8 @@ const newTask = {
             <div className="p-2 bg-primary/10 rounded-lg">
               <ApperIcon name="Plus" className="h-5 w-5 text-primary" />
             </div>
-            <h2 className="text-xl font-display font-semibold text-gray-800">
-              Add New Task
+<h2 className="text-xl font-display font-semibold text-gray-800">
+              {editMode ? 'Edit Task' : 'Add New Task'}
             </h2>
           </div>
           
@@ -161,6 +201,24 @@ const newTask = {
             </div>
           </div>
 
+{/* Tags Input */}
+          <div className="mb-4">
+            <label className="block text-sm font-display font-medium text-gray-700 mb-2">
+              Tags
+            </label>
+            <Input
+              type="text"
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+              placeholder="Enter tags separated by commas"
+              disabled={isSubmitting}
+              className="font-body"
+            />
+            <p className="text-xs text-gray-500 mt-1 font-body">
+              Separate multiple tags with commas (e.g., urgent, meeting, review)
+            </p>
+          </div>
+
           <Button
             type="submit"
             disabled={isSubmitting || !title.trim()}
@@ -170,12 +228,12 @@ const newTask = {
             {isSubmitting ? (
               <>
                 <ApperIcon name="Loader2" className="mr-2 h-4 w-4 animate-spin" />
-                Creating Task...
+                {editMode ? 'Updating Task...' : 'Creating Task...'}
               </>
             ) : (
               <>
-                <ApperIcon name="Plus" className="mr-2 h-4 w-4" />
-                Create Task
+                <ApperIcon name={editMode ? "Save" : "Plus"} className="mr-2 h-4 w-4" />
+                {editMode ? 'Update Task' : 'Create Task'}
               </>
             )}
           </Button>
