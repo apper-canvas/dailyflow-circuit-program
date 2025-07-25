@@ -206,7 +206,7 @@ const handleDeleteTask = async (taskId) => {
               )}
 <Button 
                 onClick={logout}
-                className="flex items-center gap-2 bg-gradient-to-r from-primary to-secondary text-white hover:shadow-lg hover:scale-105 transition-all duration-200 px-4 py-2 rounded-lg font-medium"
+                className="flex items-center gap-2 bg-gradient-to-r from-accent to-red-500 text-white shadow-md hover:shadow-lg hover:scale-105 hover:brightness-110 transition-all duration-200 px-4 py-2 rounded-lg font-medium"
               >
                 <ApperIcon name="LogOut" className="h-4 w-4" />
                 Logout
