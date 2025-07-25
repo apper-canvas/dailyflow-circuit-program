@@ -132,7 +132,7 @@ const BulkActionsBar = () => (
               </span>
             </div>
             <div className="space-y-3">
-              <AnimatePresence mode="popLayout">
+<AnimatePresence mode="popLayout">
 {overdueTasks.map((task) => (
                   <TaskCard
                     key={task.Id}
@@ -142,7 +142,6 @@ const BulkActionsBar = () => (
                     onDelete={onDelete}
                     isSelected={selectedTasks.includes(task.Id)}
                     onSelectionChange={onSelectionChange}
-                    showSelection={showBulkActions}
                   />
                 ))}
               </AnimatePresence>
@@ -158,7 +157,7 @@ const BulkActionsBar = () => (
                 Other Tasks
               </h3>
             )}
-            <div className="space-y-3">
+<div className="space-y-3">
               <AnimatePresence mode="popLayout">
 {regularTasks.map((task) => (
                   <TaskCard
@@ -169,7 +168,6 @@ const BulkActionsBar = () => (
                     onDelete={onDelete}
                     isSelected={selectedTasks.includes(task.Id)}
                     onSelectionChange={onSelectionChange}
-                    showSelection={showBulkActions}
                   />
                 ))}
               </AnimatePresence>
@@ -186,7 +184,7 @@ const BulkActionsBar = () => (
         {showBulkActions && selectedTasks.length > 0 && (
           <BulkActionsBar />
         )}
-      </AnimatePresence>
+</AnimatePresence>
       <AnimatePresence mode="popLayout">
 {tasks.map((task) => (
           <TaskCard
@@ -197,7 +195,6 @@ const BulkActionsBar = () => (
             onDelete={onDelete}
             isSelected={selectedTasks.includes(task.Id)}
             onSelectionChange={onSelectionChange}
-            showSelection={showBulkActions}
           />
         ))}
       </AnimatePresence>

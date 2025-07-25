@@ -1,17 +1,17 @@
-import { useState, useEffect, useRef, useContext } from "react"
-import { motion } from "framer-motion"
-import { useSelector } from 'react-redux'
-import { toast } from "react-toastify"
-import taskService from "@/services/api/taskService"
-import TaskForm from "@/components/molecules/TaskForm"
-import TaskStats from "@/components/molecules/TaskStats"
-import TaskList from "@/components/organisms/TaskList"
-import Loading from "@/components/ui/Loading"
-import Error from "@/components/ui/Error"
-import Empty from "@/components/ui/Empty"
-import ApperIcon from "@/components/ApperIcon"
-import Button from "@/components/atoms/Button"
-import { AuthContext } from "../../App"
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { AuthContext } from "../../App";
+import taskService from "@/services/api/taskService";
+import ApperIcon from "@/components/ApperIcon";
+import TaskList from "@/components/organisms/TaskList";
+import Button from "@/components/atoms/Button";
+import TaskStats from "@/components/molecules/TaskStats";
+import TaskForm from "@/components/molecules/TaskForm";
+import Error from "@/components/ui/Error";
+import Empty from "@/components/ui/Empty";
+import Loading from "@/components/ui/Loading";
 const TasksPage = () => {
 const [tasks, setTasks] = useState([])
   const [loading, setLoading] = useState(true)
@@ -238,8 +238,8 @@ const handleDeleteTask = async (taskId) => {
         >
           {tasks.length === 0 ? (
             <Empty onAddTask={scrollToForm} />
-          ) : (
-<div>
+) : (
+            <div>
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="text-2xl font-display font-semibold text-gray-800">
@@ -254,22 +254,6 @@ const handleDeleteTask = async (taskId) => {
                     )}
                   </div>
                 </div>
-                {tasks.length > 0 && (
-                  <Button
-                    variant={showBulkActions ? "primary" : "outline"}
-                    size="sm"
-                    onClick={() => {
-                      setShowBulkActions(!showBulkActions)
-                      if (showBulkActions) {
-                        setSelectedTasks([])
-                      }
-                    }}
-                    className="flex items-center gap-2"
-                  >
-                    <ApperIcon name="CheckSquare" className="h-4 w-4" />
-                    {showBulkActions ? 'Cancel Selection' : 'Select Tasks'}
-                  </Button>
-                )}
               </div>
               
               <TaskList
@@ -283,7 +267,6 @@ const handleDeleteTask = async (taskId) => {
                 onBulkComplete={handleBulkComplete}
                 onBulkDelete={handleBulkDelete}
                 onBulkPriorityChange={handleBulkPriorityChange}
-                showBulkActions={showBulkActions}
               />
             </div>
           )}
