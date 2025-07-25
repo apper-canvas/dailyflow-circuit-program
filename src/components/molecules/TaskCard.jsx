@@ -12,11 +12,13 @@ import { format, isValid, parseISO } from "date-fns"
 const TaskCard = ({ task, onToggleComplete, onDelete, onUpdate, isSelected, onSelectionChange, selectMode = false }) => {
 const [isDeleting, setIsDeleting] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
+const [isEditing, setIsEditing] = useState(false)
   const [editTitle, setEditTitle] = useState(task.title)
   const [editDescription, setEditDescription] = useState(task.description || "")
   const [editCategory, setEditCategory] = useState(task.category || "Personal")
   const [editPriority, setEditPriority] = useState(task.priority || "Medium")
+  const [editDueDate, setEditDueDate] = useState(task.dueDate || "")
+  const [editTags, setEditTags] = useState(task.tags || "")
   const [isSaving, setIsSaving] = useState(false)
   const handleToggleComplete = async () => {
     try {
@@ -44,6 +46,8 @@ const handleEdit = () => {
     setEditDescription(task.description || "")
     setEditCategory(task.category || "Personal")
     setEditPriority(task.priority || "Medium")
+    setEditDueDate(task.dueDate || "")
+    setEditTags(task.tags || "")
     setIsEditing(true)
   }
 
@@ -59,7 +63,9 @@ const updates = {
         title: editTitle.trim(),
         description: editDescription.trim(),
         category: editCategory,
-        priority: editPriority
+        priority: editPriority,
+        dueDate: editDueDate ? editDueDate : null,
+        tags: editTags.trim()
       }
       await onUpdate(task.Id, updates)
       setIsEditing(false)
@@ -71,9 +77,13 @@ const updates = {
     }
   }
 
-  const handleCancel = () => {
+const handleCancel = () => {
     setEditTitle(task.title)
     setEditDescription(task.description || "")
+    setEditCategory(task.category || "Personal")
+    setEditPriority(task.priority || "Medium")
+    setEditDueDate(task.dueDate || "")
+    setEditTags(task.tags || "")
     setIsEditing(false)
   }
 
@@ -152,7 +162,7 @@ const updates = {
 
 <div className="flex-1 min-w-0">
 {isEditing ? (
-              <div className="space-y-3">
+<div className="space-y-4">
                 <div>
                   <Input
                     value={editTitle}
@@ -196,6 +206,27 @@ const updates = {
                       <option value="Medium">Medium</option>
                       <option value="Low">Low</option>
                     </select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Input
+                      type="date"
+                      value={editDueDate || ""}
+                      onChange={(e) => setEditDueDate(e.target.value)}
+                      disabled={isSaving}
+                      className="text-xs font-body"
+                      placeholder="Due date"
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      value={editTags}
+                      onChange={(e) => setEditTags(e.target.value)}
+                      placeholder="Tags (comma separated)"
+                      disabled={isSaving}
+                      className="text-xs font-body"
+                    />
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
