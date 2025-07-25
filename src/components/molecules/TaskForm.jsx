@@ -179,45 +179,48 @@ const handleSubmit = async (e) => {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 font-body">
-              Due Date (Optional)
-            </label>
-            <div className="relative">
-              <DatePicker
-                selected={dueDate}
-                onChange={setDueDate}
-                placeholderText="Select a due date"
-                dateFormat="MMM d, yyyy"
-                minDate={new Date()}
-                disabled={isSubmitting}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-body focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500"
-                wrapperClassName="w-full"
-                popperClassName="react-datepicker-popper"
-              />
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                <ApperIcon name="Calendar" className="h-4 w-4 text-gray-400" />
+{!editMode && (
+            <>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700 font-body">
+                  Due Date (Optional)
+                </label>
+                <div className="relative">
+                  <DatePicker
+                    selected={dueDate}
+                    onChange={setDueDate}
+                    placeholderText="Select a due date"
+                    dateFormat="MMM d, yyyy"
+                    minDate={new Date()}
+                    disabled={isSubmitting}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-body focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500"
+                    wrapperClassName="w-full"
+                    popperClassName="react-datepicker-popper"
+                  />
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <ApperIcon name="Calendar" className="h-4 w-4 text-gray-400" />
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
 
-{/* Tags Input */}
-          <div className="mb-4">
-            <label className="block text-sm font-display font-medium text-gray-700 mb-2">
-              Tags
-            </label>
-            <Input
-              type="text"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              placeholder="Enter tags separated by commas"
-              disabled={isSubmitting}
-              className="font-body"
-            />
-            <p className="text-xs text-gray-500 mt-1 font-body">
-              Separate multiple tags with commas (e.g., urgent, meeting, review)
-            </p>
-          </div>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700 font-body">
+                  Tags
+                </label>
+                <Input
+                  type="text"
+                  value={tags}
+                  onChange={(e) => setTags(e.target.value)}
+                  placeholder="Enter tags separated by commas"
+                  disabled={isSubmitting}
+                  className="font-body"
+                />
+                <p className="text-xs text-gray-500 mt-1 font-body">
+                  Separate multiple tags with commas (e.g., urgent, meeting, review)
+                </p>
+              </div>
+            </>
+          )}
 
           <Button
             type="submit"
