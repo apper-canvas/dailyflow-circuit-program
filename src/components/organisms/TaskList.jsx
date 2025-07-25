@@ -12,8 +12,7 @@ const TaskList = ({
   onSelectionChange,
   onBulkComplete,
   onBulkDelete,
-  onBulkPriorityChange,
-  showBulkActions = false
+  onBulkPriorityChange
 }) => {
   if (!tasks || tasks.length === 0) {
     return null
@@ -114,9 +113,9 @@ const BulkActionsBar = () => (
     const regularTasks = tasks.filter(task => !isTaskOverdue(task))
 
     return (
-      <div className="space-y-6">
+<div className="space-y-6">
         <AnimatePresence>
-          {showBulkActions && selectedTasks.length > 0 && (
+          {selectedTasks.length > 0 && (
             <BulkActionsBar />
           )}
         </AnimatePresence>
@@ -181,7 +180,7 @@ const BulkActionsBar = () => (
   return (
 <div className="space-y-3">
       <AnimatePresence>
-        {showBulkActions && selectedTasks.length > 0 && (
+        {selectedTasks.length > 0 && (
           <BulkActionsBar />
         )}
 </AnimatePresence>
