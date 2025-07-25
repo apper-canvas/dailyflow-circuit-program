@@ -75,7 +75,7 @@ const handleSelectionChange = (taskId, isSelected) => {
     }
   }
 
-  const handleBulkComplete = async () => {
+const handleBulkComplete = async () => {
     if (selectedTasks.length === 0) return
     
     const updatedTasks = await taskService.bulkUpdate(selectedTasks, { 
@@ -92,10 +92,11 @@ const handleSelectionChange = (taskId, isSelected) => {
       )
       setSelectedTasks([])
       setShowBulkActions(false)
+      setSelectMode(false)
     }
   }
 
-  const handleBulkDelete = async () => {
+const handleBulkDelete = async () => {
     if (selectedTasks.length === 0) return
     
     const confirmed = window.confirm(
@@ -112,10 +113,11 @@ const handleSelectionChange = (taskId, isSelected) => {
       )
       setSelectedTasks([])
       setShowBulkActions(false)
+      setSelectMode(false)
     }
   }
 
-  const handleBulkPriorityChange = async (priority) => {
+const handleBulkPriorityChange = async (priority) => {
     if (selectedTasks.length === 0) return
     
     const updatedTasks = await taskService.bulkUpdate(selectedTasks, { 
@@ -132,6 +134,7 @@ const handleSelectionChange = (taskId, isSelected) => {
       )
       setSelectedTasks([])
       setShowBulkActions(false)
+      setSelectMode(false)
     }
   }
 
