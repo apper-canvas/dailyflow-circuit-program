@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useContext } from "react"
 import { motion } from "framer-motion"
 import { useSelector } from 'react-redux'
+import { toast } from "react-toastify"
 import taskService from "@/services/api/taskService"
 import TaskForm from "@/components/molecules/TaskForm"
 import TaskStats from "@/components/molecules/TaskStats"
@@ -12,9 +13,11 @@ import ApperIcon from "@/components/ApperIcon"
 import Button from "@/components/atoms/Button"
 import { AuthContext } from "../../App"
 const TasksPage = () => {
-  const [tasks, setTasks] = useState([])
+const [tasks, setTasks] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const [selectedTasks, setSelectedTasks] = useState([])
+  const [showBulkActions, setShowBulkActions] = useState(false)
   const formRef = useRef(null)
   
   // Move hooks to top level to avoid conditional calling
@@ -42,7 +45,7 @@ const handleTaskCreated = async (taskData) => {
     setTasks(prevTasks => [...prevTasks, newTask])
   }
 
-  const handleToggleComplete = async (taskId) => {
+const handleToggleComplete = async (taskId) => {
     const updatedTask = await taskService.toggleComplete(taskId)
     setTasks(prevTasks =>
       prevTasks.map(task =>
@@ -51,7 +54,78 @@ const handleTaskCreated = async (taskData) => {
     )
   }
 
-  const handleTaskUpdate = async (taskId, updates) => {
+  const handleSelectionChange = (taskId, isSelected) => {
+    setSelectedTasks(prev => {
+      const updated = isSelected 
+        ? [...prev, taskId]
+        : prev.filter(id => id !== taskId)
+      
+      setShowBulkActions(updated.length > 0)
+      return updated
+    })
+  }
+
+  const handleBulkComplete = async () => {
+    if (selectedTasks.length === 0) return
+    
+    const updatedTasks = await taskService.bulkUpdate(selectedTasks, { 
+      is_completed_c: true 
+    })
+    
+    if (updatedTasks.length > 0) {
+      setTasks(prevTasks =>
+        prevTasks.map(task =>
+          selectedTasks.includes(task.Id) 
+            ? { ...task, isCompleted: true, is_completed_c: true }
+            : task
+        )
+      )
+      setSelectedTasks([])
+      setShowBulkActions(false)
+    }
+  }
+
+  const handleBulkDelete = async () => {
+    if (selectedTasks.length === 0) return
+    
+    const confirmed = window.confirm(
+      `Are you sure you want to delete ${selectedTasks.length} task${selectedTasks.length > 1 ? 's' : ''}? This action cannot be undone.`
+    )
+    
+    if (!confirmed) return
+    
+    const success = await taskService.bulkDelete(selectedTasks)
+    
+    if (success) {
+      setTasks(prevTasks =>
+        prevTasks.filter(task => !selectedTasks.includes(task.Id))
+      )
+      setSelectedTasks([])
+      setShowBulkActions(false)
+    }
+  }
+
+  const handleBulkPriorityChange = async (priority) => {
+    if (selectedTasks.length === 0) return
+    
+    const updatedTasks = await taskService.bulkUpdate(selectedTasks, { 
+      priority_c: priority 
+    })
+    
+    if (updatedTasks.length > 0) {
+      setTasks(prevTasks =>
+        prevTasks.map(task =>
+          selectedTasks.includes(task.Id) 
+            ? { ...task, priority: priority, priority_c: priority }
+            : task
+        )
+      )
+      setSelectedTasks([])
+      setShowBulkActions(false)
+    }
+  }
+
+const handleTaskUpdate = async (taskId, updates) => {
     const updatedTask = await taskService.update(taskId, updates)
     setTasks(prevTasks =>
       prevTasks.map(task =>
@@ -60,16 +134,16 @@ const handleTaskCreated = async (taskData) => {
     )
   }
 
-  const handleDeleteTask = async (taskId) => {
+const handleDeleteTask = async (taskId) => {
     await taskService.delete(taskId)
     setTasks(prevTasks =>
       prevTasks.filter(task => task.Id !== taskId)
     )
   }
+
   const scrollToForm = () => {
     formRef.current?.scrollIntoView({ behavior: "smooth" })
   }
-
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -167,12 +241,35 @@ const handleTaskCreated = async (taskData) => {
           ) : (
 <div>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-display font-semibold text-gray-800">
-                  Your Tasks
-                </h2>
-                <div className="text-sm text-gray-500 font-body">
-                  {tasks.length} {tasks.length === 1 ? "task" : "tasks"} total
+                <div>
+                  <h2 className="text-2xl font-display font-semibold text-gray-800">
+                    Your Tasks
+                  </h2>
+                  <div className="text-sm text-gray-500 font-body mt-1">
+                    {tasks.length} {tasks.length === 1 ? "task" : "tasks"} total
+                    {selectedTasks.length > 0 && (
+                      <span className="ml-2 text-primary font-medium">
+                        • {selectedTasks.length} selected
+                      </span>
+                    )}
+                  </div>
                 </div>
+                {tasks.length > 0 && (
+                  <Button
+                    variant={showBulkActions ? "primary" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      setShowBulkActions(!showBulkActions)
+                      if (showBulkActions) {
+                        setSelectedTasks([])
+                      }
+                    }}
+                    className="flex items-center gap-2"
+                  >
+                    <ApperIcon name="CheckSquare" className="h-4 w-4" />
+                    {showBulkActions ? 'Cancel Selection' : 'Select Tasks'}
+                  </Button>
+                )}
               </div>
               
               <TaskList
@@ -181,6 +278,12 @@ const handleTaskCreated = async (taskData) => {
                 onUpdate={handleTaskUpdate}
                 onDelete={handleDeleteTask}
                 separateOverdue={true}
+                selectedTasks={selectedTasks}
+                onSelectionChange={handleSelectionChange}
+                onBulkComplete={handleBulkComplete}
+                onBulkDelete={handleBulkDelete}
+                onBulkPriorityChange={handleBulkPriorityChange}
+                showBulkActions={showBulkActions}
               />
             </div>
           )}

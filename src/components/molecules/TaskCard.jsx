@@ -9,8 +9,7 @@ import Card from "@/components/atoms/Card"
 import ApperIcon from "@/components/ApperIcon"
 import { cn } from "@/utils/cn"
 import { format, isValid, parseISO } from "date-fns"
-
-const TaskCard = ({ task, onToggleComplete, onDelete, onUpdate }) => {
+const TaskCard = ({ task, onToggleComplete, onDelete, onUpdate, isSelected, onSelectionChange, showSelection = false }) => {
 const [isDeleting, setIsDeleting] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -136,10 +135,22 @@ const updates = {
         task.isCompleted && "task-completed border-l-success/40",
         dueDateInfo?.isOverdue && !task.isCompleted && "border-l-error/60 bg-error/5"
       )}>
-        <div className="flex items-start gap-4">
+<div className="flex items-start gap-4">
+          {showSelection && (
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Checkbox
+                checked={isSelected}
+                onChange={(e) => onSelectionChange(task.Id, e.target.checked)}
+                className="mt-0.5 border-secondary"
+              />
+            </motion.div>
+          )}
           <motion.div
-            whileTap={{ scale: 0.9 }}
-            className="mt-1"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             <Checkbox
               checked={task.isCompleted}

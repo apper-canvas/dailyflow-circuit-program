@@ -1,7 +1,20 @@
 import { motion, AnimatePresence } from "framer-motion"
 import TaskCard from "@/components/molecules/TaskCard"
-
-const TaskList = ({ tasks, onToggleComplete, onUpdate, onDelete, separateOverdue = false }) => {
+import Button from "@/components/atoms/Button"
+import ApperIcon from "@/components/ApperIcon"
+const TaskList = ({ 
+  tasks, 
+  onToggleComplete, 
+  onUpdate, 
+  onDelete, 
+  separateOverdue = false,
+  selectedTasks = [],
+  onSelectionChange,
+  onBulkComplete,
+  onBulkDelete,
+  onBulkPriorityChange,
+  showBulkActions = false
+}) => {
   if (!tasks || tasks.length === 0) {
     return null
   }
@@ -22,6 +35,79 @@ const TaskList = ({ tasks, onToggleComplete, onUpdate, onDelete, separateOverdue
       return false
     }
   }
+const BulkActionsBar = () => (
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      className="sticky top-0 z-10 bg-white border border-gray-200 rounded-lg p-4 mb-4 shadow-md"
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <ApperIcon name="CheckSquare" className="h-5 w-5 text-primary" />
+          <span className="font-medium text-gray-700">
+            {selectedTasks.length} task{selectedTasks.length > 1 ? 's' : ''} selected
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="success"
+            size="sm"
+            onClick={onBulkComplete}
+            className="flex items-center gap-1"
+          >
+            <ApperIcon name="Check" className="h-4 w-4" />
+            Mark Complete
+          </Button>
+          <div className="relative group">
+            <Button
+              variant="secondary"
+              size="sm"
+              className="flex items-center gap-1"
+            >
+              <ApperIcon name="Flag" className="h-4 w-4" />
+              Priority
+              <ApperIcon name="ChevronDown" className="h-3 w-3" />
+            </Button>
+            <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-20">
+              <div className="py-1 min-w-[120px]">
+                <button
+                  onClick={() => onBulkPriorityChange('High')}
+                  className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
+                >
+                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                  High
+                </button>
+                <button
+                  onClick={() => onBulkPriorityChange('Medium')}
+                  className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
+                >
+                  <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                  Medium
+                </button>
+                <button
+                  onClick={() => onBulkPriorityChange('Low')}
+                  className="w-full text-left px-3 py-2 text-sm hover:bg-gray-50 flex items-center gap-2"
+                >
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  Low
+                </button>
+              </div>
+            </div>
+          </div>
+          <Button
+            variant="danger"
+            size="sm"
+            onClick={onBulkDelete}
+            className="flex items-center gap-1"
+          >
+            <ApperIcon name="Trash2" className="h-4 w-4" />
+            Delete
+          </Button>
+        </div>
+      </div>
+    </motion.div>
+  )
 
   if (separateOverdue) {
     const overdueTasks = tasks.filter(isTaskOverdue)
@@ -29,6 +115,11 @@ const TaskList = ({ tasks, onToggleComplete, onUpdate, onDelete, separateOverdue
 
     return (
       <div className="space-y-6">
+        <AnimatePresence>
+          {showBulkActions && selectedTasks.length > 0 && (
+            <BulkActionsBar />
+          )}
+        </AnimatePresence>
         {/* Overdue Tasks Section */}
         {overdueTasks.length > 0 && (
           <div>
@@ -42,13 +133,16 @@ const TaskList = ({ tasks, onToggleComplete, onUpdate, onDelete, separateOverdue
             </div>
             <div className="space-y-3">
               <AnimatePresence mode="popLayout">
-                {overdueTasks.map((task) => (
+{overdueTasks.map((task) => (
                   <TaskCard
                     key={task.Id}
                     task={task}
                     onToggleComplete={onToggleComplete}
                     onUpdate={onUpdate}
                     onDelete={onDelete}
+                    isSelected={selectedTasks.includes(task.Id)}
+                    onSelectionChange={onSelectionChange}
+                    showSelection={showBulkActions}
                   />
                 ))}
               </AnimatePresence>
@@ -66,13 +160,16 @@ const TaskList = ({ tasks, onToggleComplete, onUpdate, onDelete, separateOverdue
             )}
             <div className="space-y-3">
               <AnimatePresence mode="popLayout">
-                {regularTasks.map((task) => (
+{regularTasks.map((task) => (
                   <TaskCard
                     key={task.Id}
                     task={task}
                     onToggleComplete={onToggleComplete}
                     onUpdate={onUpdate}
                     onDelete={onDelete}
+                    isSelected={selectedTasks.includes(task.Id)}
+                    onSelectionChange={onSelectionChange}
+                    showSelection={showBulkActions}
                   />
                 ))}
               </AnimatePresence>
@@ -84,15 +181,23 @@ const TaskList = ({ tasks, onToggleComplete, onUpdate, onDelete, separateOverdue
   }
 
   return (
-    <div className="space-y-3">
+<div className="space-y-3">
+      <AnimatePresence>
+        {showBulkActions && selectedTasks.length > 0 && (
+          <BulkActionsBar />
+        )}
+      </AnimatePresence>
       <AnimatePresence mode="popLayout">
-        {tasks.map((task) => (
+{tasks.map((task) => (
           <TaskCard
             key={task.Id}
             task={task}
             onToggleComplete={onToggleComplete}
             onUpdate={onUpdate}
             onDelete={onDelete}
+            isSelected={selectedTasks.includes(task.Id)}
+            onSelectionChange={onSelectionChange}
+            showSelection={showBulkActions}
           />
         ))}
       </AnimatePresence>

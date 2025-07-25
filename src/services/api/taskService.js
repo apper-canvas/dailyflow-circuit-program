@@ -204,7 +204,7 @@ class TaskService {
     }
   }
 
-  async update(id, updates) {
+async update(id, updates) {
     try {
       if (!this.apperClient) this.initializeClient();
       
@@ -281,7 +281,7 @@ class TaskService {
     }
   }
 
-  async delete(id) {
+async delete(id) {
     try {
       if (!this.apperClient) this.initializeClient();
       
@@ -328,7 +328,7 @@ class TaskService {
       const currentTask = await this.getById(id);
       
       // Update completion status
-      return await this.update(id, { 
+return await this.update(id, {
         isCompleted: !currentTask.isCompleted 
       });
     } catch (error) {
@@ -338,6 +338,99 @@ class TaskService {
         console.error(error.message);
       }
       throw error;
+    }
+  }
+async bulkUpdate(taskIds, updates) {
+    try {
+      const records = taskIds.map(id => ({
+        Id: parseInt(id),
+        ...updates
+      }));
+
+      const params = {
+        records: records
+      };
+
+      const response = await this.apperClient.updateRecord('task_c', params);
+
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return [];
+      }
+
+      if (response.results) {
+        const successfulUpdates = response.results.filter(result => result.success);
+        const failedUpdates = response.results.filter(result => !result.success);
+
+        if (failedUpdates.length > 0) {
+          console.error(`Failed to update ${failedUpdates.length} tasks:${JSON.stringify(failedUpdates)}`);
+          
+          failedUpdates.forEach(record => {
+            record.errors?.forEach(error => {
+              toast.error(`${error.fieldLabel}: ${error.message}`);
+            });
+            if (record.message) toast.error(record.message);
+          });
+        }
+
+        if (successfulUpdates.length > 0) {
+          toast.success(`Successfully updated ${successfulUpdates.length} task${successfulUpdates.length > 1 ? 's' : ''}`);
+        }
+
+        return successfulUpdates.map(result => result.data);
+      }
+    } catch (error) {
+      if (error?.response?.data?.message) {
+        console.error("Error bulk updating tasks:", error?.response?.data?.message);
+      } else {
+        console.error(error.message);
+      }
+      toast.error("Failed to update tasks. Please try again.");
+      return [];
+    }
+  }
+
+  async bulkDelete(taskIds) {
+    try {
+      const params = {
+        RecordIds: taskIds.map(id => parseInt(id))
+      };
+
+      const response = await this.apperClient.deleteRecord('task_c', params);
+
+      if (!response.success) {
+        console.error(response.message);
+        toast.error(response.message);
+        return false;
+      }
+
+      if (response.results) {
+        const successfulDeletions = response.results.filter(result => result.success);
+        const failedDeletions = response.results.filter(result => !result.success);
+
+        if (failedDeletions.length > 0) {
+          console.error(`Failed to delete ${failedDeletions.length} tasks:${JSON.stringify(failedDeletions)}`);
+          
+          failedDeletions.forEach(record => {
+            if (record.message) toast.error(record.message);
+          });
+        }
+
+        if (successfulDeletions.length > 0) {
+          toast.success(`Successfully deleted ${successfulDeletions.length} task${successfulDeletions.length > 1 ? 's' : ''}`);
+        }
+
+        return successfulDeletions.length === taskIds.length;
+      }
+    } catch (error) {
+      if (error?.response?.data?.message) {
+        console.error("Error bulk deleting tasks:", error?.response?.data?.message);
+      } else {
+        console.error(error.message);
+      }
+      toast.error("Failed to delete tasks. Please try again.");
+      return false;
     }
   }
 }
