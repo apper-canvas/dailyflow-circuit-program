@@ -12,7 +12,8 @@ const TaskList = ({
   onSelectionChange,
   onBulkComplete,
   onBulkDelete,
-  onBulkPriorityChange
+  onBulkPriorityChange,
+  selectMode = false
 }) => {
   if (!tasks || tasks.length === 0) {
     return null
@@ -141,6 +142,7 @@ const BulkActionsBar = () => (
                     onDelete={onDelete}
                     isSelected={selectedTasks.includes(task.Id)}
                     onSelectionChange={onSelectionChange}
+                    selectMode={selectMode}
                   />
                 ))}
               </AnimatePresence>
@@ -167,6 +169,7 @@ const BulkActionsBar = () => (
                     onDelete={onDelete}
                     isSelected={selectedTasks.includes(task.Id)}
                     onSelectionChange={onSelectionChange}
+                    selectMode={selectMode}
                   />
                 ))}
               </AnimatePresence>
@@ -184,7 +187,7 @@ const BulkActionsBar = () => (
           <BulkActionsBar />
         )}
 </AnimatePresence>
-      <AnimatePresence mode="popLayout">
+<AnimatePresence mode="popLayout">
 {tasks.map((task) => (
           <TaskCard
             key={task.Id}
@@ -194,6 +197,7 @@ const BulkActionsBar = () => (
             onDelete={onDelete}
             isSelected={selectedTasks.includes(task.Id)}
             onSelectionChange={onSelectionChange}
+            selectMode={selectMode}
           />
         ))}
       </AnimatePresence>

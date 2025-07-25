@@ -16,8 +16,9 @@ const TasksPage = () => {
 const [tasks, setTasks] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
-  const [selectedTasks, setSelectedTasks] = useState([])
+const [selectedTasks, setSelectedTasks] = useState([])
   const [showBulkActions, setShowBulkActions] = useState(false)
+  const [selectMode, setSelectMode] = useState(false)
   const formRef = useRef(null)
   
   // Move hooks to top level to avoid conditional calling
@@ -54,7 +55,7 @@ const handleToggleComplete = async (taskId) => {
     )
   }
 
-  const handleSelectionChange = (taskId, isSelected) => {
+const handleSelectionChange = (taskId, isSelected) => {
     setSelectedTasks(prev => {
       const updated = isSelected 
         ? [...prev, taskId]
@@ -63,6 +64,15 @@ const handleToggleComplete = async (taskId) => {
       setShowBulkActions(updated.length > 0)
       return updated
     })
+  }
+
+  const handleSelectModeToggle = () => {
+    setSelectMode(!selectMode)
+    if (selectMode) {
+      // Exiting select mode, clear selections
+      setSelectedTasks([])
+      setShowBulkActions(false)
+    }
   }
 
   const handleBulkComplete = async () => {
@@ -240,7 +250,7 @@ const handleDeleteTask = async (taskId) => {
             <Empty onAddTask={scrollToForm} />
 ) : (
             <div>
-              <div className="flex items-center justify-between mb-6">
+<div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="text-2xl font-display font-semibold text-gray-800">
                     Your Tasks
@@ -254,9 +264,20 @@ const handleDeleteTask = async (taskId) => {
                     )}
                   </div>
                 </div>
+                <div className="flex items-center gap-4">
+                  <Button
+                    variant={selectMode ? "primary" : "outline"}
+                    size="sm"
+                    onClick={handleSelectModeToggle}
+                    className="flex items-center gap-2"
+                  >
+                    <ApperIcon name={selectMode ? "CheckSquare" : "Square"} className="h-4 w-4" />
+                    {selectMode ? "Exit Select Mode" : "Select Tasks"}
+                  </Button>
+                </div>
               </div>
               
-              <TaskList
+<TaskList
                 tasks={tasks}
                 onToggleComplete={handleToggleComplete}
                 onUpdate={handleTaskUpdate}
@@ -267,6 +288,7 @@ const handleDeleteTask = async (taskId) => {
                 onBulkComplete={handleBulkComplete}
                 onBulkDelete={handleBulkDelete}
                 onBulkPriorityChange={handleBulkPriorityChange}
+                selectMode={selectMode}
               />
             </div>
           )}

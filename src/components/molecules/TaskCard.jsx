@@ -9,7 +9,7 @@ import Card from "@/components/atoms/Card"
 import ApperIcon from "@/components/ApperIcon"
 import { cn } from "@/utils/cn"
 import { format, isValid, parseISO } from "date-fns"
-const TaskCard = ({ task, onToggleComplete, onDelete, onUpdate, isSelected, onSelectionChange }) => {
+const TaskCard = ({ task, onToggleComplete, onDelete, onUpdate, isSelected, onSelectionChange, selectMode = false }) => {
 const [isDeleting, setIsDeleting] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
@@ -136,24 +136,17 @@ const updates = {
         dueDateInfo?.isOverdue && !task.isCompleted && "border-l-error/60 bg-error/5"
       )}>
 <div className="flex items-start gap-4">
-          <motion.div
+<motion.div
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
             <Checkbox
-              checked={isSelected}
-              onChange={(e) => onSelectionChange(task.Id, e.target.checked)}
-              className="mt-0.5 border-secondary"
-            />
-          </motion.div>
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Checkbox
-              checked={task.isCompleted}
-              onChange={handleToggleComplete}
-              className="mt-0.5"
+              checked={selectMode ? isSelected : task.isCompleted}
+              onChange={selectMode 
+                ? (e) => onSelectionChange(task.Id, e.target.checked)
+                : handleToggleComplete
+              }
+              className={`mt-0.5 ${selectMode ? 'border-secondary' : ''}`}
             />
           </motion.div>
 
