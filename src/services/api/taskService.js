@@ -22,7 +22,7 @@ class TaskService {
       if (!this.apperClient) this.initializeClient();
       
       const params = {
-        fields: [
+fields: [
           { field: { Name: "Name" } },
           { field: { Name: "Tags" } },
           { field: { Name: "Owner" } },
@@ -82,7 +82,7 @@ class TaskService {
       if (!this.apperClient) this.initializeClient();
       
       const params = {
-        fields: [
+fields: [
           { field: { Name: "Name" } },
           { field: { Name: "Tags" } },
           { field: { Name: "Owner" } },
@@ -146,7 +146,7 @@ class TaskService {
         due_date_c: taskData.dueDate ? taskData.dueDate.split('T')[0] : null, // Date format YYYY-MM-DD
         category_c: taskData.category || 'Personal',
         priority_c: taskData.priority || 'Medium',
-        Tags: taskData.tags || ''
+Tags: taskData.tags || ''
       };
 
       const params = {
@@ -222,7 +222,7 @@ async update(id, updates) {
       if (updates.dueDate !== undefined) dbUpdates.due_date_c = updates.dueDate ? updates.dueDate.split('T')[0] : null;
       if (updates.category !== undefined) dbUpdates.category_c = updates.category;
       if (updates.priority !== undefined) dbUpdates.priority_c = updates.priority;
-      if (updates.tags !== undefined) dbUpdates.Tags = updates.tags;
+if (updates.tags !== undefined) dbUpdates.Tags = updates.tags;
       
       dbUpdates.updated_at_c = new Date().toISOString();
 

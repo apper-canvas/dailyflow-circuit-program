@@ -15,7 +15,7 @@ const [title, setTitle] = useState("")
   const [dueDate, setDueDate] = useState(null)
   const [category, setCategory] = useState("Personal")
   const [priority, setPriority] = useState("Medium")
-  const [tags, setTags] = useState("")
+const [tags, setTags] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const editMode = mode === 'edit' && task
 
@@ -26,7 +26,7 @@ const [title, setTitle] = useState("")
       setDescription(task.description || "")
       setCategory(task.category || "Personal")
       setPriority(task.priority || "Medium")
-      setTags(task.tags || "")
+setTags(task.tags || "")
       
       // Handle due date - convert string to Date object for DatePicker
       if (task.dueDate) {
@@ -62,7 +62,7 @@ const handleSubmit = async (e) => {
         dueDate: dueDate ? dueDate.toISOString() : null,
         category,
         priority,
-        tags: tags.trim()
+tags: tags.trim()
       }
 
       if (editMode) {
@@ -79,7 +79,7 @@ const handleSubmit = async (e) => {
         setDueDate(null)
         setCategory("Personal")
         setPriority("Medium")
-        setTags("")
+setTags("")
         
         toast.success("Task created successfully!")
       }
@@ -209,7 +209,7 @@ const handleSubmit = async (e) => {
                 </label>
                 <Input
                   type="text"
-                  value={tags}
+value={tags}
                   onChange={(e) => setTags(e.target.value)}
                   placeholder="Enter tags separated by commas"
                   disabled={isSubmitting}
